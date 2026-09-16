@@ -5,16 +5,17 @@ export const useSectionNavigation = () => {
   const route = useRoute()
   const router = useRouter()
 
-  const navigateToSection = async (id) => {
+  const navigateToSection = async (id, routeName = 'home') => {
     const hash = `#${id}`
 
-    if (route.name !== 'home') {
-      await router.push({ name: 'home', hash })
+    const existing = document.getElementById(id)
+    if (existing) {
+      existing.scrollIntoView({ behavior: 'smooth' })
       return
     }
 
-    if (route.hash !== hash) {
-      await router.push({ name: 'home', hash })
+    if (route.name !== routeName || route.hash !== hash) {
+      await router.push({ name: routeName, hash })
       return
     }
 

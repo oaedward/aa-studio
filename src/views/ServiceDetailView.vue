@@ -2,64 +2,64 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import ContactSection from '../components/sections/ContactSection.vue'
-import { getProjectBySlug, projects } from '../data/projects'
+import { useSectionNavigation } from '../composables/useSectionNavigation'
+import { getServiceBySlug, services } from '../data/services'
 
 const route = useRoute()
-const project = computed(() => getProjectBySlug(route.params.slug))
-const nextProject = computed(() => {
-  const currentIndex = projects.findIndex((item) => item.slug === project.value?.slug)
-  return projects[(currentIndex + 1) % projects.length]
+const { navigateToSection } = useSectionNavigation()
+const service = computed(() => getServiceBySlug(route.params.slug))
+const nextService = computed(() => {
+  const currentIndex = services.findIndex((item) => item.slug === service.value?.slug)
+  return services[(currentIndex + 1) % services.length]
 })
 </script>
 
 <template>
-  <main v-if="project" class="project-detail">
+  <main v-if="service" class="service-detail">
     <section class="detail-hero">
-      <img :src="project.image" :alt="project.title" />
+      <img :src="service.image" :alt="service.title" />
       <div class="hero-overlay"></div>
       <div class="detail-hero-copy">
-        <RouterLink class="detail-back" :to="{ name: 'projects' }"><i class="fa-solid fa-arrow-left icon-left" aria-hidden="true"></i>Back to projects</RouterLink>
-        <p class="eyebrow light">{{ project.scope }}</p>
-        <h1>{{ project.title }}</h1>
-        <p>{{ project.location }}</p>
+        <RouterLink class="detail-back" :to="{ name: 'services', hash: '#services' }"><i class="fa-solid fa-arrow-left icon-left" aria-hidden="true"></i>Back to services</RouterLink>
+        <p class="eyebrow light">Service {{ service.number }}</p>
+        <h1>{{ service.title }}</h1>
       </div>
     </section>
     <section class="section detail-intro">
-      <div class="section-label"><span>Project</span><p>{{ project.category }}</p></div>
+      <div class="section-label"><span>{{ service.number }}</span><p>{{ service.title }}</p></div>
       <div class="detail-intro-grid">
         <div>
-          <p class="eyebrow">About the project</p>
-          <h2>Designed for<br /><em>everyday rituals.</em></h2>
+          <p class="eyebrow">Overview</p>
+          <h2>{{ service.summary }}</h2>
         </div>
         <div class="detail-description">
-          <p>{{ project.description }}</p>
-          <dl>
-            <div><dt>Location</dt><dd>{{ project.location }}</dd></div>
-            <div><dt>Year</dt><dd>{{ project.year }}</dd></div>
-            <div><dt>Scope</dt><dd>{{ project.scope }}</dd></div>
-          </dl>
+          <p>{{ service.description }}</p>
+          <ul class="includes-list">
+            <li v-for="item in service.highlights" :key="item">{{ item }}</li>
+          </ul>
+          <button class="text-link" @click="navigateToSection('contact')">Start a project <span><i class="fa-solid fa-arrow-right icon-diagonal" aria-hidden="true"></i></span></button>
         </div>
       </div>
     </section>
     <section class="detail-gallery">
-      <img v-for="image in project.gallery" :key="image" :src="image" :alt="`${project.title} project view`" />
+      <img v-for="image in service.gallery" :key="image" :src="image" :alt="`${service.title} example`" />
     </section>
     <section class="detail-next">
       <p class="eyebrow light">Continue exploring</p>
-      <RouterLink :to="{ name: 'project', params: { slug: nextProject.slug } }">Next project <span><i class="fa-solid fa-arrow-right icon-diagonal" aria-hidden="true"></i></span></RouterLink>
+      <RouterLink :to="{ name: 'service', params: { slug: nextService.slug } }">{{ nextService.title }} <span><i class="fa-solid fa-arrow-right icon-diagonal" aria-hidden="true"></i></span></RouterLink>
     </section>
     <ContactSection />
   </main>
   <main v-else class="project-missing">
-    <p class="eyebrow">Project not found</p>
-    <RouterLink class="text-link" :to="{ name: 'projects' }">Return to projects <span><i class="fa-solid fa-arrow-right icon-diagonal" aria-hidden="true"></i></span></RouterLink>
+    <p class="eyebrow">Service not found</p>
+    <RouterLink class="text-link" :to="{ name: 'services', hash: '#services' }">Return to services <span><i class="fa-solid fa-arrow-right icon-diagonal" aria-hidden="true"></i></span></RouterLink>
   </main>
 </template>
 
 <style scoped>
 .detail-hero {
-  height: 82svh;
-  min-height: 630px;
+  height: 66svh;
+  min-height: 480px;
   overflow: hidden;
   position: relative;
 }
@@ -101,16 +101,8 @@ const nextProject = computed(() => {
 
 .detail-hero h1 {
   color: var(--paper);
-  font-size: clamp(4.4rem, 9vw, 9rem);
-  line-height: 0.86;
-}
-
-.detail-hero-copy > p:last-child {
-  color: rgba(var(--paper-rgb), 0.68);
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  margin-top: 24px;
-  text-transform: uppercase;
+  font-size: clamp(3.6rem, 7vw, 6.4rem);
+  line-height: 0.9;
 }
 
 .detail-intro-grid {
@@ -120,6 +112,11 @@ const nextProject = computed(() => {
   margin-left: 13vw;
 }
 
+.detail-intro-grid h2 {
+  font-size: clamp(2rem, 2.4vw + 1rem, 2.8rem);
+  line-height: 1.3;
+}
+
 .detail-description > p {
   color: var(--gray);
   font-size: 1.06rem;
@@ -127,31 +124,28 @@ const nextProject = computed(() => {
   max-width: 580px;
 }
 
-.detail-description dl {
+.includes-list {
   border-top: 1px solid var(--line);
-  margin: 54px 0 0;
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
 }
 
-.detail-description dl div {
+.includes-list li {
   border-bottom: 1px solid var(--line);
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 100px 1fr;
+  color: var(--ink);
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
   padding: 16px 0;
 }
 
-.detail-description dt {
-  color: var(--gray-light);
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+.includes-list li::before {
+  color: var(--gold);
+  content: '— ';
 }
 
-.detail-description dd {
-  color: var(--ink);
-  font-size: 0.76rem;
-  letter-spacing: 0.08em;
-  margin: 0;
+.detail-description .text-link {
+  margin-top: 40px;
 }
 
 .detail-gallery {
@@ -214,8 +208,8 @@ const nextProject = computed(() => {
 
 @media (max-width: 800px) {
   .detail-hero {
-    height: 72svh;
-    min-height: 560px;
+    height: 58svh;
+    min-height: 420px;
   }
   .detail-hero-copy {
     bottom: 8vh;
@@ -225,17 +219,11 @@ const nextProject = computed(() => {
   .detail-back {
     margin-bottom: 42px;
   }
-  .detail-hero h1 {
-    font-size: clamp(4rem, 15vw, 6.5rem);
-  }
   .detail-intro-grid {
     display: block;
     margin-left: 0;
   }
   .detail-description {
-    margin-top: 36px;
-  }
-  .detail-description dl {
     margin-top: 36px;
   }
   .detail-gallery {
@@ -261,13 +249,6 @@ const nextProject = computed(() => {
   .detail-hero-copy {
     left: 5vw;
     right: 5vw;
-  }
-  .detail-hero h1 {
-    font-size: clamp(3.6rem, 18vw, 5.2rem);
-  }
-  .detail-description dl div {
-    gap: 12px;
-    grid-template-columns: 82px 1fr;
   }
   .detail-gallery {
     padding: 0 5vw 5vw;
