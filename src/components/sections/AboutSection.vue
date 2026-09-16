@@ -37,7 +37,7 @@ const founder = team[0]
       <div class="about-story-copy">
         <p class="eyebrow">Our story</p>
         <p>
-          Founded in Accra in 2014, Urban Atelier + Partners began as a two-person studio with a simple belief: that
+          Founded in Accra in 2014, A.A Urban Atelier + Partners began as a two-person studio with a simple belief: that
           good design is measured by how a space feels to live in, not just how it photographs. That belief has
           shaped every project we have taken on since, from single-family homes to larger residential communities
           across Ghana.
